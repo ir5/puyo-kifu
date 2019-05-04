@@ -2,10 +2,6 @@ import argparse
 import sys
 
 import cv2
-# import matplotlib
-# matplotlib.use('Agg')  # noqa
-# import matplotlib.pyplot as plt
-# import numpy as np
 
 
 def detect_field_liveness(canny):
@@ -20,18 +16,14 @@ def detect_field_liveness(canny):
 
 def process(args):
     cap = cv2.VideoCapture(args.videofile)
-
     fps = int(cap.get(cv2.CAP_PROP_FPS))
-
     # cap.set(cv2.CAP_PROP_POS_FRAMES, 30 * 300)
-    # alive_graph1 = []
-    # alive_graph2 = []
-
     f = open('alive.csv', 'w')
 
-    for i in range(fps * 600):
+    for i in range(1000000000):
         ret, img = cap.read()
         sys.stdout.write('\r{}'.format(i))
+        sys.stdout.write(' ' * 80)
         sys.stdout.flush()
         if not ret:
             break
@@ -41,18 +33,8 @@ def process(args):
 
         # canny
         canny = cv2.Canny(img, 100, 500)
-        # cv2.imwrite('a.png', canny)
-
         alive1, alive2 = detect_field_liveness(canny)
         f.write('{:.2f},{},{}\n'.format(i / fps, int(alive1), int(alive2)))
-        # alive_graph1.append(alive1)
-        # alive_graph2.append(alive2)
-
-    # fig = plt.figure()
-    # ax = fig.add_subplot(111)
-    # ax.plot(np.arange(len(alive_graph1)), alive_graph1, color='C0')
-    # ax.plot(np.arange(len(alive_graph2)), alive_graph2, color='C1')
-    # plt.savefig('alive.png')
 
 
 def main():
