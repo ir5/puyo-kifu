@@ -14,8 +14,7 @@ def main():
     parser.add_argument('--save_liveness', type=str, default=None)
     args = parser.parse_args()
 
-    # result = detect_whole_play(args)
-    result = [(1067, 2816), (2826, 5139), (5150, 6388), (7361, 8041)]
+    result = detect_whole_play(args)
     print(result)
 
     for i, (begin, end) in enumerate(result):
