@@ -1,7 +1,7 @@
 import argparse
-import cv2
 
 from puyokifu.analyze import detect_whole_play
+from puyokifu.media import clip_by_frame
 
 
 def main():
@@ -14,23 +14,13 @@ def main():
     parser.add_argument('--save_liveness', type=str, default=None)
     args = parser.parse_args()
 
-    result = [(1007, 2755), (2767, 5079), (5090, 6328), (7301, 8041)]
     # result = detect_whole_play(args)
-    for i, (begin, end) in enumerate(result):
-        print('# {} / {}'.format(i, len(result)))
-        cap = cv2.VideoCapture(args.videofile)
-        fps = cap.get(cv2.CAP_PROP_FPS)
-        width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-        height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        cap.set(cv2.CAP_PROP_POS_FRAMES, begin)
+    result = [(1067, 2816), (2826, 5139), (5150, 6388), (7361, 8041)]
+    print(result)
 
-        fourcc = cv2.VideoWriter_fourcc('m', 'p', '4', 'v')
-        vw = cv2.VideoWriter('{}.mp4'.format(i),
-                             fourcc, fps, (width, height))
-        for _ in range(end - begin):
-            ret, img = cap.read()
-            assert ret
-            vw.write(img)
+    for i, (begin, end) in enumerate(result):
+        clip_by_frame(args.videofile, '{}.mp4'.format(i),
+                      begin, end)
 
 
 if __name__ == '__main__':

@@ -2,6 +2,9 @@ import itertools
 import sys
 
 import cv2
+import skvideo.io
+
+from puyokifu.media import get_fps
 
 
 def normalize_image(img_orig, args):
@@ -51,21 +54,18 @@ def analyze_play_intervals(alives1, alives2):
 
 
 def detect_whole_play(args):
-    cap = cv2.VideoCapture(args.videofile)
-    fps = int(cap.get(cv2.CAP_PROP_FPS))
+    fps = get_fps(args.videofile)
+    cap = skvideo.io.vreader(args.videofile)
 
     if args.save_liveness is not None:
         f = open(args.save_liveness, 'w')
 
     alives1 = []
     alives2 = []
-    for i in itertools.count():
-        ret, img = cap.read()
+    for i, img in enumerate(cap):
         sys.stderr.write(' ' * 80)
         sys.stderr.write('\rframe={}'.format(i))
         sys.stderr.flush()
-        if not ret:
-            break
         img = normalize_image(img, args)
         a1, a2 = detect_field_liveness(img)
         alives1.append(a1)
