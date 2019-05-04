@@ -20,12 +20,34 @@ def detect_field_liveness(img):
     alive1 = (vsum[60:100] >= 180).any() and (vsum[210:250] >= 180).any()
     alive2 = (vsum[530:570] >= 180).any() and (vsum[390:430] >= 180).any()
 
-    return alive1, alive2
+    return int(alive1), int(alive2)
 
 
 def analyze_play_intervals(alives1, alives2):
-    # TODO
-    return []
+    zfill_threshold = 9
+    ones_threshold = 30 * 7
+
+    als = [min(a1 + a2, 1) for a1, a2 in zip(alives1, alives2)]
+    # fill short contiguous zeros
+    z = 0
+    for i, a in enumerate(als):
+        if a >= 1:
+            if i - z <= zfill_threshold:
+                # als[z:i] = 1
+                for j in range(z, i):
+                    als[j] = 1
+            z = i
+
+    # extract contiguous ones
+    result = []
+    pos = 0
+    for a, s in itertools.groupby(als):
+        s = list(s)
+        if a == 1 and len(s) >= ones_threshold:
+            result.append((pos, pos + len(s)))
+        pos += len(s)
+
+    return result
 
 
 def detect_whole_play(args):
@@ -51,6 +73,6 @@ def detect_whole_play(args):
 
         if args.save_liveness is not None:
             f.write('{:.2f},{},{}\n'.format(
-                i / fps, int(a1), int(a2)))
+                i / fps, a1, a2))
 
     return analyze_play_intervals(alives1, alives2)
